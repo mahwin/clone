@@ -1,10 +1,8 @@
+import type { NextPage } from "next";
 import { useState } from "react";
+import { cls } from "../libs/utils";
 
-function cls(...classnames: string[]) {
-  return classnames.join(" ");
-}
-
-export default function Enter() {
+const Enter: NextPage = () => {
   const [method, setMethod] = useState<"email" | "phone">("email");
   const onEmailClick = () => setMethod("email");
   const onPhoneClick = () => setMethod("phone");
@@ -65,6 +63,7 @@ export default function Enter() {
               </div>
             ) : null}
           </div>
+          č
           <button className="mt-3 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 focus:outline-none ">
             {method === "email" ? "Get login link" : null}
             {method === "phone" ? "Get one-time password" : null}
@@ -107,4 +106,4 @@ export default function Enter() {
       </div>
     </div>
   );
-}
+};
