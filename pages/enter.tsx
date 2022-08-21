@@ -1,11 +1,31 @@
 import type { NextPage } from "next";
 import { useState } from "react";
-import { cls } from "../libs/utils";
+import { cls } from "../libs/client/utils";
+import Button from "../components/button";
+import Input from "../components/input";
+import { useForm } from "react-hook-form";
+import useMutation from "../libs/client/useMutation";
+interface EnterForm {
+  email?: string;
+  phone?: string;
+}
 
 const Enter: NextPage = () => {
+  const [enter, { loading, data, error }] = useMutation("/api/users/enter");
+  const { register, reset, handleSubmit } = useForm<EnterForm>();
   const [method, setMethod] = useState<"email" | "phone">("email");
-  const onEmailClick = () => setMethod("email");
-  const onPhoneClick = () => setMethod("phone");
+  const onEmailClick = () => {
+    reset();
+    setMethod("email");
+  };
+  const onPhoneClick = () => {
+    reset();
+    setMethod("phone");
+  };
+  const onValid = (data: EnterForm) => {
+    enter(data);
+  };
+  console.log(loading, data, error);
   return (
     <div className="mt-16 px-4">
       <h3 className="text-3xl font-bold text-center">Enter to Carrot</h3>
@@ -37,33 +57,28 @@ const Enter: NextPage = () => {
             </button>
           </div>
         </div>
-        <form className="flex flex-col mt-8">
-          <label className="text-sm font-medium text-gray-700">
-            {method === "email" ? "Email address" : null}
-            {method === "phone" ? "Phone number" : null}
-          </label>
-          <div className="mt-1">
-            {method === "email" ? (
-              <input
-                className="appearance-none w-full px-3 py-2 border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                type="email"
-                required
-              />
-            ) : null}
-            {method === "phone" ? (
-              <div className="flex rounded-md shadow-sm">
-                <span className="flex items-center justify-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 selection-none text-sm">
-                  +82
-                </span>
-                <input
-                  type="number"
-                  className="appearance-none w-full px-3 py-2 border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 rounded-l-none"
-                  required
-                />
-              </div>
-            ) : null}
-          </div>
-          č
+        <form onSubmit={handleSubmit(onValid)} className="flex flex-col mt-8">
+          {method === "email" ? (
+            <Input
+              register={register("email", { required: true })}
+              name="email"
+              label="Email address"
+              type="email"
+              required
+            />
+          ) : null}
+          {method === "phone" ? (
+            <Input
+              register={register("phone", {
+                required: true,
+              })}
+              name="phone"
+              label="Phone number"
+              type="number"
+              kind="phone"
+              required
+            />
+          ) : null}
           <button className="mt-3 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 focus:outline-none ">
             {method === "email" ? "Get login link" : null}
             {method === "phone" ? "Get one-time password" : null}
@@ -107,3 +122,5 @@ const Enter: NextPage = () => {
     </div>
   );
 };
+
+export default Enter;
