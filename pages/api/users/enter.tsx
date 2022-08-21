@@ -2,8 +2,10 @@ import twilio from "twilio";
 import { NextApiRequest, NextApiResponse } from "next";
 import withHandler, { ResponseType } from "@libs/server/withHandler";
 import client from "@libs/server/client";
+import mail from "@sendgrid/mail";
 
 const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+mail.setApiKey(process.env.SENDGRID_KEY);
 
 async function handler(
   req: NextApiRequest,
@@ -36,6 +38,14 @@ async function handler(
       body: `Your login token is ${payload}.`,
     });
     console.log(message);
+  } else if (email) {
+    const email = await mail.send({
+      from: "mahwin7085@gmail.com",
+      to: "mahwin7085@gmail.com",
+      subject: "제목입니다.",
+      text: `Your token is ${payload}`,
+    });
+    console.log(email);
   }
   return res.json({
     ok: true,
