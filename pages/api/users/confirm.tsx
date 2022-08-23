@@ -27,7 +27,7 @@ async function handler(
 }
 
 export default withApiSession(
-  withHandler({ method: "POST", handler, isPrivate: false })
+  withHandler({ methods: ["POST"], handler, isPrivate: false })
 );
 
 //withIronSessionApiRoute으로 함수를 감싸면 요청 객체 안에 요청하는 세션을 자동으로 만들어줌

@@ -1,12 +1,42 @@
 import type { NextPage } from "next";
+import Button from "@components/button";
+import Input from "@components/input";
 import Layout from "@components/layout";
+import TextArea from "@components/textarea";
+import { useForm } from "react-hook-form";
+import useMutation from "@libs/client/useMutation";
+import { Product } from ".prisma/client";
+import Router from "next/router";
+import { useEffect } from "react";
+
+interface UploadProductForm {
+  name: string;
+  price: number;
+  description: string;
+}
+
+interface UploadProductMutation {
+  ok: boolean;
+  product: Product;
+}
 
 const Upload: NextPage = () => {
+  const { register, handleSubmit } = useForm<UploadProductForm>();
+  const [uploadProduct, { loading, data }] =
+    useMutation<UploadProductMutation>("/api/products");
+  const onValid = (data: UploadProductForm) => {
+    if (loading) return;
+    uploadProduct(data);
+  };
+  useEffect(() => {
+    if (data?.ok) Router.push(`/items/${data.product.id}`);
+  }, [data]);
+
   return (
-    <Layout canGoBack>
-      <div className="px-4 py-16 space-y-4">
+    <Layout canGoBack title="Upload Product">
+      <form className="p-4 space-y-4" onSubmit={handleSubmit(onValid)}>
         <div>
-          <label className="w-full flex items-center justify-center  text-gray-600 hover:text-orange-400 border-dashed border-2 border-gray-300 h-48 rounded-md cursor-pointer hover:border-orange-400">
+          <label className="w-full cursor-pointer text-gray-600 hover:border-orange-500 hover:text-orange-500 flex items-center justify-center border-2 border-dashed border-gray-300 h-48 rounded-md">
             <svg
               className="h-12 w-12"
               stroke="currentColor"
@@ -21,54 +51,32 @@ const Upload: NextPage = () => {
                 strokeLinejoin="round"
               />
             </svg>
-
             <input className="hidden" type="file" />
           </label>
         </div>
-
-        <div>
-          <label htmlFor="title">Title</label>
-          <input
-            className="appearance-none flex items-center w-full py-2 border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-300 focus:border-orange-300"
-            type="text"
-            id="title"
-            placeholder="제목을 입력하세요"
-          />
-        </div>
-        <div>
-          <label htmlFor="price">Price</label>
-          <div className="rounded-md relative shadow-sm flex items-center justify-center">
-            <div className="absolute left-0 pl-3  pointer-events-none">
-              <span className="text-gray-500 text-sm">$</span>
-            </div>
-            <input
-              className="appearance-none pl-7 flex items-center w-full px-3 py-2 border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-300 focus:border-orange-300"
-              type="text"
-              id="price"
-              placeholder="0.00"
-            />
-
-            <div className="absolute right-0 pr-3 flex items-center pointer-events-none">
-              <span className="text-gray-500">USD</span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <label htmlFor="description">Description</label>
-          <div>
-            <textarea
-              className="mt-1 shadow-sm w-full focus:ring-2 focus:ring-orange-300 rounded-md border-gray-300 
-            focus:border-orange-400
-            focus:outline-none"
-              id="description"
-              rows={4}
-            />
-          </div>
-        </div>
-        <button className="w-full bg-orange-500 rounded-md focus:outline-none  text-white py-1 focus:ring-orange-300 focus:ring-2 focus:ring-offset-2">
-          Upload product
-        </button>
-      </div>
+        <Input
+          register={register("name", { required: true })}
+          required
+          label="Name"
+          name="name"
+          type="text"
+        />
+        <Input
+          register={register("price", { required: true })}
+          required
+          label="Price"
+          name="price"
+          type="text"
+          kind="price"
+        />
+        <TextArea
+          register={register("description", { required: true })}
+          name="description"
+          label="Description"
+          required
+        />
+        <Button text={loading ? "Loading..." : "Upload item"} />
+      </form>
     </Layout>
   );
 };
