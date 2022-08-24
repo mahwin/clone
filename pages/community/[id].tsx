@@ -1,7 +1,24 @@
 import type { NextPage } from "next";
 import Layout from "@components/layout";
+import { useRouter } from "next/router";
+import useSWR from "swr";
+import { Post, User } from "@prisma/client";
+import Link from "next/link";
+interface PostWithUser extends Post {
+  user: User;
+}
+
+interface CommunityPostResponse {
+  ok: boolean;
+  post: PostWithUser;
+}
 
 const CommunityPostDetail: NextPage = () => {
+  const router = useRouter();
+  const { data, error } = useSWR<CommunityPostResponse>(
+    router.query.id ? `/api/posts/${router.query.id}` : null
+  );
+  console.log(data);
   return (
     <Layout canGoBack>
       <div>
@@ -13,18 +30,21 @@ const CommunityPostDetail: NextPage = () => {
           <div className="w-10 h-10 rounded-full bg-slate-300" />
 
           <div>
-            <p className="text-sm font-medium text-gray-700">Steve Jebs</p>
-
-            <p className="text-xs font-medium text-gray-500">
-              View profile &rarr;
+            <p className="text-sm font-medium text-gray-700">
+              {data?.post.user.name}
             </p>
+            <Link href={`/users/profiles/${data?.post?.user?.id}`}>
+              <p className="text-xs font-medium text-gray-500">
+                View profile &rarr;
+              </p>
+            </Link>
           </div>
         </div>
 
         <div>
           <div className="mt-2 px-4 text-gray-700">
-            <span className="text-orange-500 font-medium">Q.</span> What is the
-            best mandu restaurant?
+            <span className="text-orange-500 font-medium">Q.</span>
+            {data?.post?.question}
           </div>
 
           <div className="flex px-4 space-x-5 mt-3 text-gray-700 py-2.5 border-t border-b-[2px]  w-full">

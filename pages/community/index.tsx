@@ -1,7 +1,10 @@
 import type { NextPage } from "next";
 import Layout from "@components/layout";
+import { useRouter } from "next/router";
 
 const Community: NextPage = () => {
+  const router = useRouter();
+
   return (
     <Layout title="동네 생활" hasTabBar>
       <div className="py-16 px-4 space-y-8">
@@ -56,7 +59,10 @@ const Community: NextPage = () => {
             </div>
           </div>
         ))}
-        <button className="fixed hover:bg-orange-500 cursor-pointer bottom-24 right-5 bg-orange-400 rounded-full p-3 text-white shadow-xl transition-color">
+        <button
+          className="fixed hover:bg-orange-500 cursor-pointer bottom-24 right-5 bg-orange-400 rounded-full p-3 text-white shadow-xl transition-color"
+          onClick={() => router.push("/community/write")}
+        >
           <svg
             className="w-6 h-6"
             fill="none"

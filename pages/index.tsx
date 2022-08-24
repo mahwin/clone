@@ -10,7 +10,7 @@ import client from "@libs/server/client";
 
 export interface ProductWithCount extends Product {
   _count: {
-    fav: number;
+    favs: number;
   };
 }
 
