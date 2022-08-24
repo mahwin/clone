@@ -11,31 +11,42 @@ async function handler(
 ) {
   const {
     query: { id },
+    session: { user },
   } = req;
-  const post = await client.post.findUnique({
+  const alreadyExists = await client.wondering.findFirst({
     where: {
-      id: Number(id),
+      userId: user?.id,
+      postId: Number(id),
     },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          avatar: true,
-        },
-      },
-      _count: {
-        select: {
-          wondering: true,
-          answers: true,
-        },
-      },
+    select: {
+      id: true,
     },
   });
+  if (alreadyExists) {
+    await client.wondering.delete({
+      where: {
+        id: alreadyExists.id,
+      },
+    });
+  } else {
+    await client.wondering.create({
+      data: {
+        user: {
+          connect: {
+            id: user?.id,
+          },
+        },
+        post: {
+          connect: {
+            id: Number(id),
+          },
+        },
+      },
+    });
+  }
   res.json({
     ok: true,
-    post,
   });
 }
 
-export default withApiSession(withHandler({ methods: ["GET"], handler }));
+export default withApiSession(withHandler({ methods: ["POST"], handler }));
